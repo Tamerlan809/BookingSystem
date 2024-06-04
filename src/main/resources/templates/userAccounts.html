@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Hantera Användare</title>
+    <link href="/css/styles.css" rel="stylesheet" />
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container px-5">
+        <a class="navbar-brand" href="/">Hem</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 th:text="${pageTitle}">Användare</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th th:each="heading : ${tableHeadings}" th:text="${heading}">Heading</th>
+            <th>Ta bort</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.username}">Username</td>
+            <td th:text="${user.roleNames}">Roles</td>
+            <td>
+                <a th:href="@{/user/delete/{id}(id=${user.id})}" class="btn btn-danger">Ta bort</a>
+            </td>
+        </tr>
+        <tr th:if="${users.size()} == 0">
+            <td colspan="3" th:text="${emptyListMessage}">Inga användare hittades</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="container">
+    <h1>Skapa Användare</h1>
+    <form th:action="@{/user/create}" th:object="${user}" method="post">
+        <div class="form-group">
+            <label for="username">Användarnamn</label>
+            <input type="text" id="username" name="username" th:field="*{username}" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="password">Lösenord</label>
+            <input type="password" id="password" name="password" th:field="*{password}" class="form-control" />
+        </div>
+        <div class="form-group">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col" class="hidden">Roll</th>
+                    <th scope="col">Välj</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="role : ${roles}">
+                    <td th:text="${role.name}"></td>
+                    <td><input type="checkbox" th:value="${role.id}" name="roleIds" class="choose-checkbox"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <input type="hidden" name="enabled" value="true">
+        <button type="submit" class="btn btn-primary">Skapa</button>
+    </form>
+
+</body>
+</html>
+

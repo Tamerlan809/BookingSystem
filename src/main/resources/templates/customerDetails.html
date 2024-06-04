@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Företagskunder - Detaljer</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container px-5">
+        <a class="navbar-brand" href="/">Hem</a>
+    </div>
+</nav>
+<main class="container mt-5">
+    <section class="existing-bookings mb-5">
+        <h2 class="mb-3">Information om avtalskunden</h2>
+        <table class="table" id="customerTable">
+            <thead>
+            <tr>
+                <th>Företagsnamn</th>
+                <th>Kontaktnamn</th>
+                <th>Yrke</th>
+                <th>Gatuadress</th>
+                <th>Stad</th>
+                <th>Postnummer</th>
+                <th>Land</th>
+                <th>Telefon</th>
+                <th>Fax</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${customerAllinfo != null}">
+                <td th:text="${customerAllinfo.companyName}"></td>
+                <td th:text="${customerAllinfo.contactName}"></td>
+                <td th:text="${customerAllinfo.contactTitle}"></td>
+                <td th:text="${customerAllinfo.streetAddress}"></td>
+                <td th:text="${customerAllinfo.city}"></td>
+                <td th:text="${customerAllinfo.postalCode}"></td>
+                <td th:text="${customerAllinfo.country}"></td>
+                <td th:text="${customerAllinfo.phone}"></td>
+                <td th:text="${customerAllinfo.fax}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+
+
+</body>
+</html>

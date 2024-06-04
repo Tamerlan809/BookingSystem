@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Pensionat - Personal</title>
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+    <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container px-5">
+            <a class="navbar-brand" href="/">Hem</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login" sec:authorize="isAnonymous()">Logga in</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout" sec:authorize="isAuthenticated()">Logga ut</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+        <div class="container px-4 px-lg-5">
+
+            <div class="row gx-4 gx-lg-5 align-items-center my-5">
+                <div class="col-lg-6"><img class="img-fluid rounded mb-4 mb-lg-0" src="img/391718087.jpg" /></div>
+                <div class="col-lg-5">
+                    <h1 class="font-weight-light">Bokningssystem</h1>
+                    <p>Denna sida är till för personal på pensionatet som ska hantera kunder och bokningar.</p>
+                </div>
+            </div>
+
+            <div class="row gx-4 gx-lg-5">
+                <div class="col-md-4 mb-5" sec:authorize="hasAuthority('Receptionist') or hasAuthority('Admin')">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Kundhantering</h2>
+                            <p class="card-text">Här kan du regristrera en kund, ändra kunduppgifter eller ta bort en kund från systemet.</p>
+                        </div>
+                        <div class="card-footer"><a class="btn btn-dark btn-sm" href="/customer">Hantera</a></div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5" sec:authorize="hasAuthority('Receptionist') or hasAuthority('Admin')">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Bokningar</h2>
+                            <p class="card-text">Här kan du boka in en kund, ändra i bokningen eller göra en avbokning.</p>
+                        </div>
+                        <div class="card-footer"><a class="btn btn-dark btn-sm" href="/booking">Hantera</a></div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5" sec:authorize="hasAuthority('Receptionist') or hasAuthority('Admin')">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Rum</h2>
+                            <p class="card-text">Här kan du skapa rum.</p>
+                        </div>
+                        <div class="card-footer"><a class="btn btn-dark btn-sm" href="/rooms">Hantera</a></div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5" sec:authorize="hasAuthority('Receptionist') or hasAuthority('Admin')">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Företagskunder</h2>
+                            <p class="card-text">Här kan du se företagskunderna.</p>
+                        </div>
+                        <div class="card-footer"><a class="btn btn-dark btn-sm" href="/contractCustomers">Hantera</a></div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5" sec:authorize="hasAuthority('Receptionist') or hasAuthority('Admin')">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Blacklist</h2>
+                            <p class="card-text">Här kan du redigera blacklist.</p>
+                        </div>
+                        <div class="card-footer"><a class="btn btn-dark btn-sm" href="/blacklist">Hantera</a></div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5" sec:authorize="hasAuthority('Admin')">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Hantera Användare</h2>
+                            <p class="card-text">Här kan du redigera användare.</p>
+                        </div>
+                        <div class="card-footer"><a class="btn btn-dark btn-sm" href="/user">Hantera</a></div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5" sec:authorize="hasAuthority('Receptionist') or hasAuthority('Admin')">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Mall</h2>
+                            <p class="card-text">Här kan du ändra mallen för bekräftelse-mailen.</p>
+                        </div>
+                        <div class="card-footer"><a class="btn btn-dark btn-sm" href="/emailTemplate">Hantera</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="py-5 bg-dark">
+            <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy; 2024</p></div>
+        </footer>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

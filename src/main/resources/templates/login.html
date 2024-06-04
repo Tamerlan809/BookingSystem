@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Logga in</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        #reset-password-container {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container px-5">
+        <a class="navbar-brand" href="/">Hem</a>
+    </div>
+</nav>
+<div th:if="${resetEmailSent}" class="alert alert-success text-center" role="alert">
+    <span th:text="${resetEmailSent}"></span>
+</div>
+<div th:if="${loginError}" class="alert alert-danger text-center" role="alert">
+    <span th:text="${loginError}"></span>
+</div>
+<div th:if="${userNotExist}" class="alert alert-danger text-center" role="alert">
+    <span th:text="${userNotExist}"></span>
+</div>
+<div th:if="${message}" class="alert alert-success text-center" role="alert">
+    <span th:text="${message}"></span>
+</div>
+<div th:if="${error}" class="alert alert-danger text-center" role="alert">
+    <span th:text="${error}"></span>
+</div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Logga in</h3>
+                </div>
+                <div class="card-body">
+                    <form action="/login" method="post">
+                        <div class="form-group">
+                            <label for="username">Användarnamn</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Lösenord</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-dark btn-block">Logga in</button>
+                        </div>
+                    </form>
+                    <button onclick="showResetPassword()">Glömt lösenord?</button>
+                    <div id="reset-password-container" class="card">
+                        <div class="card-header">
+                            <h3>Återställ lösenord</h3>
+                        </div>
+                        <div class="card-body">
+                            <form action="/resetpass" method="get">
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-dark btn-block">Återställ lösenord</button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function showResetPassword() {
+        document.getElementById('reset-password-container').style.display = 'block';
+    }
+</script>
+</body>
+</html>

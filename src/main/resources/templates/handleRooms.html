@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Rum - Personal</title>
+
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container px-5">
+        <a class="navbar-brand" href="/">Hem</a>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="rooms" th:unless="${#lists.isEmpty(rummen)}">
+                <h2 th:text="${pageTitle}" class="mb-3"></h2>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Namn</th>
+                        <th scope="col">Rumstyp</th>
+                        <th scope="col">Antal extra-sängar</th>
+                        <th scope="col">Pris per natt</th>
+                        <th scope="col">Rumshantering</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="rum : ${rummen}" th:data-room-id="${rum.id}">
+                        <td><a class="rum-link" th:href="@{/roomDetails(roomId=${rum.id})}" th:text="${rum.name}"></a></td>
+                        <td th:text="${rum.rumstyp}"></td>
+                        <td th:text="${rum.antalSangar}"></td>
+                        <td th:text="${rum.price}"></td>
+                        <td><button class="btn btn-dark edit-btn" data-id="${rum.id}">Hantera</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="no-rooms" th:if="${#lists.isEmpty(rummen)}">
+                <p th:text="${emptyListMessage}"></p>
+            </div>
+
+            <div id="modifyRoomForm" class="modify-room" style="display: none;">
+                <h2 class="mb-3">Ändra rum</h2>
+                <form action="/addbeds" method="post" class="mb-4">
+                    <input type="hidden" id="modifyRoomId" name="id" value="">
+                    <div class="mb-3">
+                        <label for="modifyRoomName" class="form-label">Namn:</label>
+                        <input type="text" id="modifyRoomName" name="name" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modifyRoomType" class="form-label">Rumstyp:</label>
+                        <select id="modifyRoomType" name="rumstyp" class="form-control">
+                            <option value="ENKELRUM">Enkelrum</option>
+                            <option value="DUBBELRUM">Dubbelrum</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modifyExtraBeds" class="form-label">Antal extra-sängar:</label>
+                        <select id="modifyExtraBeds" name="antalSangar" class="form-control">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modifyRoomPrice" class="form-label">Pris per natt:</label>
+                        <input type="number" id="modifyRoomPrice" name="price" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-dark">Spara</button>
+                </form>
+            </div>
+
+            <div class="add-room">
+                <h2 class="mb-3">Registrera nytt rum</h2>
+                <form action="roomCreated" method="post" class="mb-4">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Namn:</label>
+                        <input type="text" id="name" name="name" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rumstyp" class="form-label">Rumstyp:</label>
+                        <select id="rumstyp" name="rumstyp" class="form-control">
+                            <option value="ENKELRUM">Enkelrum</option>
+                            <option value="DUBBELRUM">Dubbelrum</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Pris per natt:</label>
+                        <input type="number" id="price" name="price" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-dark">Lägg till</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="py-5 bg-dark">
+    <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy; 2024</p></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('modifyRoomType').addEventListener('change', function() {
+            const roomType = this.value;
+            const extraBedsSelect = document.getElementById('modifyExtraBeds');
+
+            if (roomType === 'ENKELRUM') {
+                extraBedsSelect.value = '0';
+                extraBedsSelect.setAttribute('disabled', 'disabled');
+            } else {
+                extraBedsSelect.removeAttribute('disabled');
+            }
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const row = btn.closest('tr');
+                const roomId = row.dataset.roomId;
+                const roomName = row.querySelector('td:first-child').textContent.trim();
+                const roomType = row.querySelector('td:nth-child(2)').textContent.trim();
+                const extraBeds = row.querySelector('td:nth-child(3)').textContent.trim();
+                const roomPrice = row.querySelector('td:nth-child(4)').textContent.trim();
+
+                document.getElementById('modifyRoomId').value = roomId;
+                document.getElementById('modifyRoomName').value = roomName;
+                document.getElementById('modifyRoomType').value = roomType;
+                document.getElementById('modifyExtraBeds').value = extraBeds;
+                document.getElementById('modifyRoomPrice').value = roomPrice;
+
+                if (roomType === 'DUBBELRUM') {
+                    document.getElementById('modifyExtraBeds').removeAttribute('disabled');
+                } else {
+                    document.getElementById('modifyExtraBeds').setAttribute('disabled', 'disabled');
+                }
+
+                document.getElementById('modifyRoomForm').action = "/addbeds";
+
+                document.querySelector('.modify-room').style.display = 'block';
+                document.getElementById('modifyRoomForm').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Företagskunder</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container px-5">
+        <a class="navbar-brand" href="/">Hem</a>
+    </div>
+</nav>
+<main class="container mt-5">
+    <section class="existing-bookings mb-5">
+        <h2 class="mb-3">Lista av företagskunder</h2>
+        <div class="mb-3">
+            <input type="text" id="searchInput" placeholder="Sök..." />
+            <button class="btn btn-primary" onclick="searchCustomers()">Sök</button>
+        </div>
+        <table class="table" id="customerTable">
+            <thead>
+            <tr>
+                <th data-sort-by="companyName" data-sort-direction="asc">Företagsnamn
+                    <button class="btn btn-primary" onclick="sortCustomers('companyName', 'asc')" data-sort="companyName-asc"><i class="fas fa-arrow-up"></i></button>
+                    <button class="btn btn-primary" onclick="sortCustomers('companyName', 'desc')" data-sort="companyName-desc"><i class="fas fa-arrow-down"></i></button>
+                </th>
+                <th data-sort-by="contactName" data-sort-direction="asc">Kontaktnamn
+                    <button class="btn btn-primary" onclick="sortCustomers('contactName', 'asc')" data-sort="contactName-asc"><i class="fas fa-arrow-up"></i></button>
+                    <button class="btn btn-primary" onclick="sortCustomers('contactName', 'desc')" data-sort="contactName-desc"><i class="fas fa-arrow-down"></i></button>
+                </th>
+                <th data-sort-by="country" data-sort-direction="asc">Land
+                    <button class="btn btn-primary" onclick="sortCustomers('country', 'asc')" data-sort="country-asc"><i class="fas fa-arrow-up"></i></button>
+                    <button class="btn btn-primary" onclick="sortCustomers('country', 'desc')" data-sort="country-desc"><i class="fas fa-arrow-down"></i></button>
+                </th>
+
+            </tr>
+            </thead>
+            <tbody id="customerTableBody">
+
+            </tbody>
+        </table>
+        <div class="pagination-buttons mt-3">
+
+            <span id="pageNumbers"></span>
+        </div>
+
+    </section>
+</main>
+
+<script>
+    let currentPage = 0;
+    let searchQuery = '';
+
+    function updateCustomerList(page = 0, search = '', sortBy = 'companyName', direction = 'asc') {
+        currentPage = page;
+        searchQuery = search;
+        fetch(`/customers?search=${search}&page=${page}&sortBy=${sortBy}&direction=${direction}`)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('customerTableBody');
+                tbody.innerHTML = '';
+                data.content.forEach(customer => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                   <td>
+            <a class="customer-link" href="/allDetails?customerId=${customer.id}" data-customer-id="${customer.id}">${customer.companyName}</a>
+        </td>
+        <td>${customer.contactName}</td>
+        <td>${customer.country}</td>
+    `;
+                    tbody.appendChild(row);
+                });
+
+                const totalPages = data.totalPages;
+
+                const pageNumbersElement = document.getElementById('pageNumbers');
+                pageNumbersElement.innerHTML = '';
+                for (let i = 0; i < totalPages; i++) {
+                    const pageNumber = i + 1;
+                    const button = document.createElement('button');
+                    button.textContent = pageNumber;
+                    button.className = 'btn btn-primary';
+                    button.onclick = function() {
+                        updateCustomerList(i, search);
+                    };
+                    pageNumbersElement.appendChild(button);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching customer data:', error);
+            });
+    }
+
+    function sortCustomers(sortBy, direction) {
+        const searchInput = document.getElementById('searchInput').value.trim();
+        updateCustomerList(0, searchInput, sortBy, direction);
+    }
+
+
+    function searchCustomers() {
+        const searchInput = document.getElementById('searchInput').value.trim();
+        updateCustomerList(0, searchInput);
+    }
+
+
+    updateCustomerList();
+</script>
+</body>
+</html>

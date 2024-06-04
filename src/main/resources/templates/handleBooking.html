@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Bokningar - Personal</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container px-5">
+        <a class="navbar-brand" href="/">Hem</a>
+    </div>
+</nav>
+
+<div th:if="${rummetRedanBokat}" class="alert alert-danger text-center" role="alert">
+    <span th:text="${rummetRedanBokat}"></span>
+</div>
+<div th:if="${blacklistError}" class="alert alert-danger text-center" role="alert">
+    <span th:text="${blacklistError}"></span>
+</div>
+<div th:if="${bokningSuccess}" class="alert alert-success text-center" role="alert">
+    <span th:text="${bokningSuccess}"></span>
+</div>
+<div th:if="${modifySuccess}" class="alert alert-success text-center" role="alert">
+    <span th:text="${modifySuccess}"></span>
+</div>
+
+<main class="container mt-5">
+    <section class="existing-bookings mb-5">
+        <h2 class="mb-3">Befintliga Bokningar</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Kundens namn</th>
+                <th>Rumsnamn</th>
+                <th>Startdatum</th>
+                <th>Slutdatum</th>
+                <th>Antal Nätter</th>
+                <th>Total Pris</th>
+                <th>Ändra</th>
+                <th>Ta bort</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="bokning : ${bokningar}" th:data-id="${bokning.id}">
+                <td th:text="${bokning.kund.namn}"></td>
+                <td th:text="${bokning.room.name}"></td>
+                <td th:text="${bokning.startDate}"></td>
+                <td th:text="${bokning.endDate}"></td>
+                <td th:text="${bokning.nights}"></td>
+                <td th:text="${bokning.totalPrice}"></td>
+                <td><button class="btn btn-dark edit-btn" data-id="${bokning.id}">Ändra</button></td>
+                <td><a th:href="@{/booking/deleteById/{id}(id=${bokning.id})}" class="btn btn-danger">Ta bort</a></td>
+            </tr>
+            </tbody>
+        </table>
+        <div th:if="${#lists.isEmpty(bokningar)}">
+            <p th:text="${emptyListMessage}">Inga bokningar hittades</p>
+        </div>
+    </section>
+
+    <div id="modifyBookingForm" class="modify-booking" style="display: none;">
+        <h2 class="mb-3">Ändra i bokning</h2>
+        <form action="/modifyBooking" method="post" class="mb-4">
+            <input type="hidden" id="modifyBookingId" name="id" value="">
+            <div class="mb-3">
+                <label for="modifyKund" class="form-label">Kund:</label>
+                <select id="modifyKund" name="kund.id" class="form-control">
+                    <option value="">Välj en kund</option>
+
+                    <option th:each="kund : ${kunder}" th:value="${kund.id}" th:text="${kund.namn}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="modifyRoom" class="form-label">Rum:</label>
+                <select id="modifyRoom" name="room.id" class="form-control">
+                    <option value="">Välj ett rum</option>
+
+                    <option th:each="rum : ${rummen}" th:value="${rum.id}" th:text="${rum.name}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="modifyStartDate" class="form-label">Start Date:</label>
+                <input type="text" id="modifyStartDate" name="startDate" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="modifyEndDate" class="form-label">End Date:</label>
+                <input type="text" id="modifyEndDate" name="endDate" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-dark">Spara</button>
+        </form>
+    </div>
+
+<hr>
+    <section class="customer-room-selection row">
+        <div class="col-lg-6">
+            <div class="kunder" th:unless="${#lists.isEmpty(kunder)}">
+                <h2 th:text="${customerPageTitle}" class="mb-3">Kunder</h2>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="hidden">ID</th>
+                        <th scope="col">Namn</th>
+                        <th scope="col">Välj</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="kund : ${kunder}">
+                        <td><span class="hidden customer-id" th:text="${kund.id}"></span></td>
+                        <td th:text="${kund.namn}"></td>
+                        <td class="customer-email" th:text="${kund.email}" style="display:none;"></td>
+                        <td><input type="radio" class="choose-radio" name="kund" data-id="${kund.id}" onclick="updateCustomer(this)"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="no-kunder" th:if="${#lists.isEmpty(kunder)}">
+                    <p th:text="${customerEmptyListMessage}">Inga kunder hittades</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="rooms" th:unless="${#lists.isEmpty(rummen)}">
+                <h2 th:text="${roomPageTitle}" class="mb-3">Rum</h2>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="hidden">ID</th>
+                        <th scope="col">Namn</th>
+                        <th scope="col">Välj</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="rum : ${rummen}">
+                        <td><span class="hidden room-id" th:text="${rum.id}"></span></td>
+                        <td th:text="${rum.name}"></td>
+                        <td><input type="radio" class="choose-radio" name="room" data-id="${rum.id}" onclick="updateRoom(this)"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="no-rooms" th:if="${#lists.isEmpty(rummen)}">
+                    <p th:text="${roomEmptyListMessage}">Inga rum hittades</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="booking-form mt-5">
+        <div class="col-lg-12 text-center">
+            <h2 class="mb-3">Boka rum</h2>
+            <form id="bookRoomForm" action="/bookRoom" method="post" class="mb-4">
+                <input type="hidden" id="selected_customer" name="kund.id">
+                <input type="hidden" id="selected_room" name="room.id">
+                <input type="hidden" id="selected_customer_email" name="kund.email">
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="start_date" class="form-label">Start Date:</label>
+                        <input type="text" id="start_date" name="startDate" class="form-control" required>
+                    </div>
+                    <div class="col">
+                        <label for="end_date" class="form-label">End Date:</label>
+                        <input type="text" id="end_date" name="endDate" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-dark">Boka</button>
+            </form>
+        </div>
+    </section>
+
+    <hr>
+
+    <section class="searchDate-form mt-5">
+        <div class="col-lg-12 text-center">
+            <h2 class="mb-3">Sök lediga rum</h2>
+            <form id="searchDateForm" action="/searchDate" method="post" class="mb-4">
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="start_date_search" class="form-label">Start Date:</label>
+                        <input type="text" id="start_date_search" name="startDate" class="form-control" required>
+                    </div>
+                    <div class="col">
+                        <label for="end_date_search" class="form-label">End Date:</label>
+                        <input type="text" id="end_date_search" name="endDate" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-dark">Sök</button>
+            </form>
+        </div>
+    </section>
+
+    <div class="col-lg-6">
+        <div class="available-rooms">
+            <h2 th:text="${availableRoomPageTitle}" class="mb-3"></h2>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Namn</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="rum : ${ledigaRum}">
+                    <td th:text="${rum.name}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="no-rooms" th:if="${#lists.isEmpty(ledigaRum)}">
+                <p th:text="${availableRoomEmptyListMessage}"></p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="py-5 bg-dark">
+    <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy; 2024</p></div>
+</footer>
+
+<script>
+
+    //För bokningsformuläret
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr('#start_date', { dateFormat: 'Y-m-d', allowInput: true });
+        flatpickr('#end_date', { dateFormat: 'Y-m-d', allowInput: true });
+    });
+
+    //För modifieringsformuläret
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr('#modifyStartDate', { dateFormat: 'Y-m-d', allowInput: true });
+        flatpickr('#modifyEndDate', { dateFormat: 'Y-m-d', allowInput: true });
+    });
+    //För sökadatumformuläret
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr('#start_date_search', { dateFormat: 'Y-m-d', allowInput: true });
+        flatpickr('#end_date_search', { dateFormat: 'Y-m-d', allowInput: true });
+    });
+
+
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const row = btn.closest('tr');
+            const bookingId = row.dataset.id;
+
+            document.getElementById('modifyBookingId').value = bookingId;
+
+            document.getElementById('modifyBookingForm').action = "/modifyBooking";
+
+            document.getElementById('modifyBookingForm').style.display = 'block';
+
+            document.getElementById('modifyBookingForm').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    function updateCustomer(element) {
+        var row = element.closest("tr");
+        var customerId = row.querySelector(".customer-id").innerText;
+        var customerEmail = row.querySelector(".customer-email").innerText;
+
+        document.getElementById('selected_customer').value = customerId;
+        document.getElementById('selected_customer_email').value = customerEmail;
+    }
+
+    function updateRoom(element) {
+        var roomId = element.closest("tr").querySelector(".room-id").innerText;
+        document.getElementById('selected_room').value = roomId;
+    }
+
+    function validateRadioButtons() {
+        var radioButtons = document.querySelectorAll('.choose-radio');
+        var isChecked = false;
+        for (var i = 0; i < radioButtons.length; i++) {
+            if (radioButtons[i].checked) {
+                isChecked = true;
+                break;
+            }
+        }
+        if (!isChecked) {
+            alert('Vänligen välj en kund och ett rum för att fortsätta!');
+            return false;
+        }
+        return true;
+    }
+
+    document.getElementById('bookRoomForm').addEventListener('submit', function(event) {
+        if (!validateRadioButtons()) {
+            event.preventDefault();
+        }
+    });
+</script>
+</body>
+</html>
